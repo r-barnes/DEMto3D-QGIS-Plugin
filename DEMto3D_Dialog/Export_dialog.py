@@ -55,6 +55,7 @@ class Dialog(QDialog, Ui_ExportDialogBase):
         else:
             self.ui.ProgressLabel.setText(self.tr("Creating STL file ..."))
             dem_matrix = self.Model.get_model()
+
             self.STL = STL(self.ui.progressBar, self.ui.ProgressLabel, self.ui.cancelButton, self.parameters,
                            self.stl_file, dem_matrix)
             self.STL.updateProgress.connect(lambda: self.ui.progressBar.setValue(self.ui.progressBar.value() + 1))

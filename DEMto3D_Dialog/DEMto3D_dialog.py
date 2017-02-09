@@ -59,6 +59,8 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
     ''' Model dimensions '''
     height = 0
     width = 0
+    scale_h = 0
+    scale_w = 0
     scale = 0
     z_scale = 0
     ''' Raster properties '''
@@ -393,13 +395,15 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
             self.width = round(width_roi * self.height / height_roi, 2)
             self.ui.WidthLineEdit.setText(str(self.width))
             if self.map_crs.mapUnits() == 0:  # Meters
-                scale1 = height_roi / self.height * 1000
-                scale2 = width_roi / self.width * 1000
-                self.scale = round((scale1 + scale2) / 2, 6)
+                self.scale_h = height_roi / self.height * 1000
+                self.scale_w = width_roi / self.width * 1000
+                self.scale = round((self.scale_h + self.scale_w) / 2, 6)
                 self.ui.ScaleLineEdit.setText(str(int(self.scale)))
             elif self.map_crs.mapUnits() == 2:  # Degree
                 dist = width_roi * math.pi / 180 * math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
                 self.scale = round(dist / self.width, 6)
+                self.scale_h = self.scale
+                self.scale_w = self.scale
                 self.ui.ScaleLineEdit.setText(str(int(self.scale)))
             self.get_min_spacing()
             self.get_height_model()
@@ -415,13 +419,15 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
             self.height = round(height_roi * self.width / width_roi, 2)
             self.ui.HeightLineEdit.setText(str(self.height))
             if self.map_crs.mapUnits() == 0:  # Meters
-                scale1 = height_roi / self.height * 1000
-                scale2 = width_roi / self.width * 1000
-                self.scale = round((scale1 + scale2) / 2, 6)
+                self.scale_h = height_roi / self.height * 1000
+                self.scale_w = width_roi / self.width * 1000
+                self.scale = round((self.scale_h + self.scale_w) / 2, 6)
                 self.ui.ScaleLineEdit.setText(str(int(self.scale)))
             elif self.map_crs.mapUnits() == 2:  # Degree
                 dist = width_roi * math.pi / 180 * math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
                 self.scale = round(dist / self.width, 6)
+                self.scale_h = self.scale
+                self.scale_w = self.scale
                 self.ui.ScaleLineEdit.setText(str(int(self.scale)))
             self.get_min_spacing()
             self.get_height_model()
@@ -434,6 +440,8 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
             width_roi = self.roi_x_max - self.roi_x_min
             height_roi = self.roi_y_max - self.roi_y_min
             self.scale = float(self.ui.ScaleLineEdit.text())
+            self.scale_h = self.scale
+            self.scale_w = self.scale
             if self.map_crs.mapUnits() == 0:  # Meters
                 self.height = round(height_roi / self.scale * 1000, 2)
                 self.ui.HeightLineEdit.setText(str(self.height))
@@ -496,9 +504,9 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
             z_inv = False
         return {"layer": path_layer[0], "roi_x_max": self.roi_x_max, "roi_x_min": self.roi_x_min,
                 "roi_y_max": self.roi_y_max, "roi_y_min": self.roi_y_min, "spacing_mm": spacing_mm,
-                "height": self.height, "width": self.width, "z_scale": self.z_scale, "scale": self.scale,
-                "z_inv": z_inv, "z_base": z_base, "projected": projected, "crs_layer": self.layer.crs(),
-                "crs_map": self.map_crs}
+                "height": self.height, "width": self.width, "z_scale": self.z_scale, "scale_w": self.scale_w,
+                "scale_h": self.scale_h, "scale": self.scale, "z_inv": z_inv, "z_base": z_base, "projected": projected,
+                "crs_layer": self.layer.crs(), "crs_map": self.map_crs}
 
     @staticmethod
     def get_dem_z(dem_dataset, x_off, y_off, col_size, row_size):

@@ -52,13 +52,36 @@ class STL(QThread):
         QtCore.QObject.connect(self.button, QtCore.SIGNAL(_fromUtf8("clicked()")), self.cancel)
 
     def run(self):
+
+        dem = self.face_dem_vector(self.matrix_dem)
+        base_dem = self.face_base_vector(self.matrix_dem)
+        wall = self.face_wall_vector(self.matrix_dem)
+        faces = dem.__len__() + base_dem.__len__() + wall.__len__()
+
         f = open(self.stl_file, "w")
         f.write("solid model\n")
 
-        dem = self.face_dem_vector(self.matrix_dem)
-        self.bar.setMaximum(dem.__len__() * 2)
+        self.bar.setMaximum(faces)
         self.bar.setValue(0)
-        for face in dem:
+
+        # // Base model form by squares cells like surface model but at 0 height
+        # for face in dem:
+        #     self.updateProgress.emit()
+        #     f.write("   facet normal 0 0 -1 " + "\n")
+        #     f.write("       outer loop\n")
+        #     f.write("           vertex " + str(getattr(face[1], "x")) + " " + str(getattr(face[1], "y")) +
+        #             " " + "0" + "\n")
+        #     f.write("           vertex " + str(getattr(face[0], "x")) + " " + str(getattr(face[0], "y")) +
+        #             " " + "0" + "\n")
+        #     f.write("           vertex " + str(getattr(face[2], "x")) + " " + str(getattr(face[2], "y")) +
+        #             " " + "0" + "\n")
+        #     f.write("       endloop\n")
+        #     f.write("   endfacet\n")
+        #     if self.quit:
+        #         f.close()
+        #         return 0
+
+        for face in base_dem:
             self.updateProgress.emit()
             f.write("   facet normal 0 0 -1 " + "\n")
             f.write("       outer loop\n")
@@ -106,7 +129,6 @@ class STL(QThread):
             f.write("   endfacet\n")
             if self.quit:
                 f.close()
-
                 return 0
 
         f.write("endsolid model\n")
@@ -172,7 +194,60 @@ class STL(QThread):
                 vector_face.append([p1, p2, p3, normal])
                 normal = self.get_normal(p1, p4, p2)
                 vector_face.append([p1, p4, p2, normal])
+        return vector_face
 
+    def face_base_vector(self, matrix_dem):
+        rows = matrix_dem.__len__()
+        cols = matrix_dem[0].__len__()
+        vector_face = []
+        for j in range(rows):
+            if j <= cols-1 and j != 0:
+                p3 = matrix_dem[0][j-1]
+                p2 = matrix_dem[0][j]
+                p1 = matrix_dem[j][0]
+                if j < rows-1:
+                    p4 = matrix_dem[j + 1][0]
+                else:
+                    p4 = matrix_dem[j][1]
+                normal = self.get_normal(p1, p2, p3)
+                vector_face.append([p1, p2, p3, normal])
+                normal = self.get_normal(p1, p4, p2)
+                vector_face.append([p1, p4, p2, normal])
+
+                p1 = matrix_dem[rows-1-j][cols-1]
+                if p2 != p1:
+                    p3 = matrix_dem[rows - 1][cols - 1 - j + 1]
+                    p2 = matrix_dem[rows - 1][cols - 1 - j]
+                    if j < rows - 1:
+                        p4 = matrix_dem[rows-1-j-1][cols-1]
+                    else:
+                        p4 = matrix_dem[rows-1-j][cols-1-1]
+                    normal = self.get_normal(p1, p2, p3)
+                    vector_face.append([p1, p2, p3, normal])
+                    normal = self.get_normal(p1, p4, p2)
+                    vector_face.append([p1, p4, p2, normal])
+                continue
+        if abs(rows-cols) >= 2:
+            if rows > cols:
+                for j in range(rows-cols-1):
+                    p2 = matrix_dem[j][cols-1]
+                    p3 = matrix_dem[cols+j][0]
+                    p1 = matrix_dem[j+1][cols-1]
+                    p4 = matrix_dem[cols+j+1][0]
+                    normal = self.get_normal(p1, p2, p3)
+                    vector_face.append([p1, p2, p3, normal])
+                    normal = self.get_normal(p1, p3, p4)
+                    vector_face.append([p1, p3, p4, normal])
+            elif cols > rows:
+                for j in range(cols-rows-1):
+                    p2 = matrix_dem[0][rows-1+j]
+                    p3 = matrix_dem[rows-1][j+1]
+                    p1 = matrix_dem[0][rows+j]
+                    p4 = matrix_dem[rows-1][j+1+1]
+                    normal = self.get_normal(p1, p2, p3)
+                    vector_face.append([p1, p2, p3, normal])
+                    normal = self.get_normal(p1, p3, p4)
+                    vector_face.append([p1, p3, p4, normal])
         return vector_face
 
     def get_normal(self, p1, p2, p3):
