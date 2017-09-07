@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- DEMto3D
+ demto3d
                                  A QGIS plugin
- Impresión 3D de MDE
+ 3D Printing of terrain models.
                              -------------------
-        begin                : 2015-08-02
-        copyright            : (C) 2015 by Francisco Javier Venceslá Simón
-        email                : demto3d@gmail.com
+        begin                : 2017-06-23
+        copyright            : (C) 2017 by Francisco Javier Venceslá Simón
+        email                : info@demto3d.com
         git sha              : $Format:%H$
  ***************************************************************************/
 
@@ -25,11 +25,11 @@
 
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
-    """Load DEMto3D class from file DEMto3D.
+    """Load demto3d class from file demto3d.
 
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
     #
-    from .DEMto3D import DEMto3D
-    return DEMto3D(iface)
+    from .demto3d import demto3d
+    return demto3d(iface)
