@@ -20,13 +20,14 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 import os
 
-from PyQt4 import QtCore
-from PyQt4.QtCore import Qt, SIGNAL
-from PyQt4.QtGui import QDialog
+from qgis.PyQt import QtCore
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QDialog
 
-from Export_dialog_base import Ui_ExportDialogBase
+from .Export_dialog_base import Ui_ExportDialogBase
 from ..model_builder.Model_Builder import Model
 from ..model_builder.STL_Builder import STL
 

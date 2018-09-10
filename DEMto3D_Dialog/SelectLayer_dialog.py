@@ -20,12 +20,13 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QDialog
-from SelectLayer_dialog_base import Ui_SelectLayer_dialog_base
+from qgis.PyQt import QtCore
+from qgis.PyQt import QtGui
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QDialog
+from .SelectLayer_dialog_base import Ui_SelectLayer_dialog_base
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8

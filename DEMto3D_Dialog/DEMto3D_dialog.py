@@ -20,24 +20,27 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
+from builtins import str
 import math
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QDialog, QMessageBox, QColor, QFileDialog, QApplication, QCursor
-from PyQt4.QtCore import Qt
+from qgis.PyQt import QtCore, QtGui
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog, QApplication
+from qgis.PyQt.QtGui import QColor, QCursor
+from qgis.PyQt.QtCore import Qt
 from qgis.gui import QgsRubberBand, QgsMapTool, QgsMessageBar
 from osgeo import gdal
 import struct
 
-import Export_dialog
-import SelectLayer_dialog
-from DEMto3D_dialog_base import Ui_DEMto3DDialogBase, _fromUtf8
-from qgis._core import QgsPoint, QgsRectangle, QgsMapLayerRegistry, QgsGeometry, QgsCoordinateTransform
+from . import Export_dialog
+from . import SelectLayer_dialog
+from .DEMto3D_dialog_base import Ui_DEMto3DDialogBase, _fromUtf8
+from qgis._core import QgsPointXY, QgsRectangle, QgsProject, QgsGeometry, QgsCoordinateTransform
 
 
 def get_layer(layer_name):
-    layermap = QgsMapLayerRegistry.instance().mapLayers()
-    for name, layer in layermap.iteritems():
+    layermap = QgsProject.instance().mapLayers()
+    for name, layer in layermap.items():
         if layer.name() == layer_name:
             if layer.isValid():
                 return layer
@@ -45,7 +48,7 @@ def get_layer(layer_name):
                 return None
 
 
-class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
+class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     # Layer to print
     layer = None
     ''' Region of interest properties '''
@@ -136,7 +139,7 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
                                              QMessageBox.Yes |
                                              QMessageBox.No, QMessageBox.No)
                 if reply == QMessageBox.Yes:
-                    f = QFileDialog.getSaveFileNameAndFilter(self, self.tr('Export to STL'), layer_name, filter=".stl")
+                    f, __ = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), layer_name, filter=".stl")
                     stl_file = f[0]
                     if stl_file:
                         export_dlg = Export_dialog.Dialog(parameters, stl_file)
@@ -145,7 +148,7 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
                         else:
                             QMessageBox.information(self, self.tr("Attention"), self.tr("Process canceled"))
             else:
-                f = QFileDialog.getSaveFileNameAndFilter(self, self.tr('Export to STL'), layer_name, filter=".stl")
+                f, __ = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), layer_name, filter=".stl")
                 stl_file = f[0]
                 if stl_file:
                     export_dlg = Export_dialog.Dialog(parameters, stl_file)
@@ -159,8 +162,8 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
     def get_layer(self, layer_name):
         if self.layer.name() != layer_name:
             self.ini_dialog()
-        layermap = QgsMapLayerRegistry.instance().mapLayers()
-        for name, layer in layermap.iteritems():
+        layermap = QgsProject.instance().mapLayers()
+        for name, layer in layermap.items():
             if layer.name() == layer_name:
                 if layer.isValid():
                     self.layer = layer
@@ -278,9 +281,9 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
             self.canvas.scene().removeItem(self.extent)
             self.extent = None
         self.extent = QgsRubberBand(self.canvas, True)
-        points = [QgsPoint(self.roi_x_max, self.roi_y_min), QgsPoint(self.roi_x_max, self.roi_y_max),
-                  QgsPoint(self.roi_x_min, self.roi_y_max), QgsPoint(self.roi_x_min, self.roi_y_min),
-                  QgsPoint(self.roi_x_max, self.roi_y_min)]
+        points = [QgsPointXY(self.roi_x_max, self.roi_y_min), QgsPointXY(self.roi_x_max, self.roi_y_max),
+                  QgsPointXY(self.roi_x_min, self.roi_y_max), QgsPointXY(self.roi_x_min, self.roi_y_min),
+                  QgsPointXY(self.roi_x_max, self.roi_y_min)]
         self.extent.setToGeometry(QgsGeometry.fromPolyline(points), None)
         self.extent.setColor(QColor(227, 26, 28, 255))
         self.extent.setWidth(5)
@@ -554,10 +557,10 @@ class RectangleMapTool(QgsMapTool):
         if startPoint.x() == endPoint.x() or startPoint.y() == endPoint.y():
             return
 
-        point1 = QgsPoint(startPoint.x(), startPoint.y())
-        point2 = QgsPoint(startPoint.x(), endPoint.y())
-        point3 = QgsPoint(endPoint.x(), endPoint.y())
-        point4 = QgsPoint(endPoint.x(), startPoint.y())
+        point1 = QgsPointXY(startPoint.x(), startPoint.y())
+        point2 = QgsPointXY(startPoint.x(), endPoint.y())
+        point3 = QgsPointXY(endPoint.x(), endPoint.y())
+        point4 = QgsPointXY(endPoint.x(), startPoint.y())
 
         self.rubberBand.addPoint(point1, False)
         self.rubberBand.addPoint(point2, False)

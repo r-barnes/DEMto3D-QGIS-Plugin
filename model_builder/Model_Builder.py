@@ -20,13 +20,14 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4 import QtCore
+from builtins import range
+from qgis.PyQt import QtCore
 import collections
 import copy
 
-from PyQt4.QtCore import QThread
-from PyQt4.QtGui import QApplication
-from qgis._core import QgsPoint, QgsCoordinateTransform
+from qgis.PyQt.QtCore import QThread
+from qgis.PyQt.QtWidgets import QApplication
+from qgis._core import QgsPointXY, QgsCoordinateTransform
 import math
 from osgeo import gdal
 import struct
@@ -87,7 +88,7 @@ class Model(QThread):
 
         row_stl = int(math.ceil(height / spacing_mm) + 1)
         col_stl = int(math.ceil(width / spacing_mm) + 1)
-        matrix_dem = [range(col_stl) for i in range(row_stl)]
+        matrix_dem = [list(range(col_stl)) for i in range(row_stl)]
 
         var_y = height
         for i in range(row_stl):
@@ -108,7 +109,7 @@ class Model(QThread):
                     y = y_model * spacing_deg / spacing_mm + roi_y_min
 
                 # Model layer geo_coordinates to query z value
-                point = QgsPoint(x, y)
+                point = QgsPointXY(x, y)
                 source = self.parameters["crs_map"]
                 target = self.parameters["crs_layer"]
                 if source != target:

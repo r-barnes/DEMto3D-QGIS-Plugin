@@ -20,10 +20,12 @@
  *                                                                         *
  ***************************************************************************/
 """
+from builtins import str
+from builtins import range
 import collections
 
-from PyQt4 import QtCore
-from PyQt4.QtCore import QThread
+from qgis.PyQt import QtCore
+from qgis.PyQt.QtCore import QThread
 import math
 
 try:
@@ -124,7 +126,7 @@ class STL(QThread):
             p3 = matrix_dem[j][0]
             p4 = matrix_dem[j + 1][0]
             p4 = p4._replace(z=d)
-            v_normal = self.normal(normal_x=0, normal_y=-1, normal_z=0)
+            v_normal = self.normalized(normal_x=0, normal_y=-1, normal_z=0)
             vector_face.append([p1, p2, p3, v_normal])
             vector_face.append([p1, p4, p2, v_normal])
             p1 = matrix_dem[j][cols - 1]
@@ -133,7 +135,7 @@ class STL(QThread):
             p3 = p3._replace(z=d)
             p4 = matrix_dem[j + 1][cols - 1]
             p4 = p4._replace(z=d)
-            v_normal = self.normal(normal_x=0, normal_y=1, normal_z=0)
+            v_normal = self.normalized(normal_x=0, normal_y=1, normal_z=0)
             vector_face.append([p1, p2, p3, v_normal])
             vector_face.append([p2, p4, p3, v_normal])
         for j in range(cols - 1):
@@ -143,7 +145,7 @@ class STL(QThread):
             p1 = matrix_dem[0][j]
             p4 = matrix_dem[0][j + 1]
             p4 = p4._replace(z=d)
-            v_normal = self.normal(normal_x=-1, normal_y=0, normal_z=0)
+            v_normal = self.normalized(normal_x=-1, normal_y=0, normal_z=0)
             vector_face.append([p1, p2, p3, v_normal])
             vector_face.append([p2, p4, p3, v_normal])
             p1 = matrix_dem[rows - 1][j]
@@ -152,7 +154,7 @@ class STL(QThread):
             p3 = matrix_dem[rows - 1][j]
             p4 = matrix_dem[rows - 1][j + 1]
             p4 = p4._replace(z=d)
-            v_normal = self.normal(normal_x=0, normal_y=1, normal_z=0)
+            v_normal = self.normalized(normal_x=0, normal_y=1, normal_z=0)
             vector_face.append([p1, p2, p3, v_normal])
             vector_face.append([p1, p4, p2, v_normal])
         return vector_face
@@ -187,10 +189,10 @@ class STL(QThread):
             z = (v[0] * w[1]) - (v[1] * w[0])
             modulo = math.sqrt(x * x + y * y + z * z)
 
-            v_normal = self.normal(normal_x=x / modulo, normal_y=y / modulo, normal_z=z / modulo)
+            v_normal = self.normalized(normal_x=x / modulo, normal_y=y / modulo, normal_z=z / modulo)
             return v_normal
         except ZeroDivisionError:
-            v_normal = self.normal(normal_x=0, normal_y=0, normal_z=0)
+            v_normal = self.normalized(normal_x=0, normal_y=0, normal_z=0)
         return v_normal
 
     def cancel(self):
